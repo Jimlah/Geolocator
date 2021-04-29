@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <!-- for the default version -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/places.js@1.19.0"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+</head>
+
+<body>
+    <form action="">
+        <div>
+            <label for="search">Search</label>
+            <input type="search" id="search" name="search" placeholder="input your location">
+        </div>
+        <div>
+            <button type="submit">Search</button>
+        </div>
+    </form>
+    <div id='map' style='width: 100%; height: 300px;'></div>
+
+    <script src="./airports.js"></script>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiamltbGFoIiwiYSI6ImNrbnJhNWhuczBtc2UybnF3eWN0YjV2NmMifQ.tpXIfQoIYQqQDAjB2Y_c6w';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-84.428067, 33.636719]
+        });
+
+        var placesAutocomplete = places({
+            appId: 'plOFI0YHLC56',
+            apiKey: 'cd2f8c915311c6ada6b7da90a861f87b',
+            container: document.querySelector('#search')
+        });
+
+        function distance(lat1,
+            lat2, lon1, lon2) {
+
+            lon1 = lon1 * Math.PI / 180;
+            lon2 = lon2 * Math.PI / 180;
+            lat1 = lat1 * Math.PI / 180;
+            lat2 = lat2 * Math.PI / 180;
+
+            // Haversine formula
+            let dlon = lon2 - lon1;
+            let dlat = lat2 - lat1;
+            let a = Math.pow(Math.sin(dlat / 2), 2)
+                + Math.cos(lat1) * Math.cos(lat2)
+                * Math.pow(Math.sin(dlon / 2), 2);
+
+            let c = 2 * Math.asin(Math.sqrt(a));
+
+            // Radius of earth in kilometers. Use 3956
+            // for miles
+            let r = 3956;
+
+            // calculate the result
+            return (c * r);
+        }
+
+        placesAutocomplete.on('change', (e) => {
+            search = e.suggestion.latlng
+            
+            const result = data.filter((d) => {
+                let dt = distance(search.lat, d._geoloc.lat, search.lng, d._geoloc.lng);
+                return dt < 200
+            })
+            result.map(x => {
+                new mapboxgl.Marker()
+                    .setLngLat([x._geoloc.lng, x._geoloc.lat])
+                    .addTo(map);
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>
